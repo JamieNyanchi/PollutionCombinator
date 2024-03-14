@@ -1,13 +1,18 @@
 {
-    "name": "pollution-combinator",
+    "name": "PollutionCombinator-JamieFork",
     "version": "1.0.0",
-    "title": "Pollution Combinator",
-    "author": "starruler",
-    "contact": "",
-    "homepage": "",
+    "title": "Pollution Combinator (Jamie's Fork)",
+    "author": "starruler, JamieNyanchi",
+    "description": "Fork of starruler's Pollution Combinator mod.\n\nAdds a combinator that outputs the amount of pollution in the chunk where it is placed as a circuit network signal.",
+    "contact": "https://github.com/JamieNyanchi/PollutionCombinator",
+    "homepage": "https://github.com/JamieNyanchi/PollutionCombinator",
     "factorio_version": "1.1",
     "dependencies": [
-        "base >= 1.1.17"
+        "base >= 1.1.77",
+        "(?) PickerDollies",
+        "! pollution-combinator"
     ],
-    "description": "Simple combinator that outputs pollution amount.  Useful for monitoring pollution spread in circuit networks and with simpler air filtering in mods like Krastorio 2."
+    "package": {
+        "git_publish_branch": "main"
+    }
 }

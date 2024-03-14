@@ -1,0 +1,6 @@
+{
+  "virtual-signal":
+  [
+    ["pollution-signal", "pc:pollution-signal"]
+  ]
+}

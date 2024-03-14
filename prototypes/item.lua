@@ -1,25 +1,36 @@
-require('constants')
+-- ================================================================
+-- Item
+-- ================================================================
 
-data:extend{
-  {
-    type = "item",
-    name = PC_ITEM_NAME,
-    icons = {
-      { 
-        icon = "__base__/graphics/icons/constant-combinator.png", 
-        icon_size = 64,
-        tint = PC_TINT
-      },
-      { 
-        icon = "__pollution-combinator__/graphics/icons/pollution-signal.png",
-        icon_size = 32,
-        tint = POLLUTION_SIGNAL_TINT,
-        scale = 0.7,
-      },
-    },
-    subgroup = "circuit-network",
-    place_result = PC_ENTITY_NAME,
-    order = "c[combinators]-d[pollution-combinator]",
-    stack_size = 50,
-  },
-}
+
+-- ================================================================
+-- Requires
+-- ================================================================
+
+-- Constants for the mod
+local pc_constants = require("constants");
+
+
+-- ================================================================
+-- Declarations
+-- ================================================================
+
+-- Copy base constant combinator item
+local pc = table.deepcopy(data.raw["item"]["constant-combinator"]);
+
+-- Adjust values for the pollution combinator
+pc.name = pc_constants.items.pollution_combinator_name;
+pc.place_result = pc_constants.entities.pollution_combinator_name;
+pc.stack_size = 50;
+
+pc.icon = pc_constants.mod_path .. "graphics/icons/pollution-combinator.png";
+pc.icon_size = 64;
+pc.icon_mipmaps = 4;
+
+pc.subgroup = "circuit-network";
+pc.order = "c[combinators]-d[pollution-combinator]";
+
+-- Add the pollution combinator icon
+data:extend({
+    pc,
+});
