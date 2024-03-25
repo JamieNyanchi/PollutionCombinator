@@ -20,7 +20,7 @@ data:extend({
         type = "int-setting",
         name = pc_constants.settings.update_rate,
         setting_type = "runtime-global",
-        default_value = 32,
+        default_value = 180,
         minimum_value = 1,
         maximum_value = 2147483647,
         order = "s01",

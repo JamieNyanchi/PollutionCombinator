@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.1
+Date: 2024-03-25
+  Changes:
+    - Changed the default update frequency for the combinators from 32 ticks to 180 ticks.
+  Graphics:
+    - Updated combinator graphics to fix the miscolored red wire connection. Thanks to S6X for the fix!
+---------------------------------------------------------------------------------------------------
 Version: 1.0.0
 Date: 2024-03-23
   Features:
