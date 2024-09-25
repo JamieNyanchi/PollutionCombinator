@@ -1,6 +1,6 @@
 {
     "name": "PollutionCombinator-JamieFork",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "title": "Pollution Combinator (Jamie's Fork)",
     "author": "starruler, JamieNyanchi",
     "description": "Fork of starruler's Pollution Combinator mod.\n\nAdds a combinator that outputs the amount of pollution in the chunk where it is placed as a circuit network signal.",

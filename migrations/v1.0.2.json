@@ -1,0 +1,23 @@
+{
+  "entity":
+  [
+    ["pc:pollution-combinator", "pc-pollution-combinator"]
+  ],
+  "item":
+  [
+    ["pc:pollution-combinator", "pc-pollution-combinator"]
+  ],
+  "mod-setting":
+  [
+    ["pc:update-rate", "pc-update-rate"],
+    ["pc:update-distribute", "pc-update-distribute"]
+  ],
+  "recipe":
+  [
+    ["pc:pollution-combinator", "pc-pollution-combinator"]
+  ],
+  "virtual-signal":
+  [
+    ["pc:pollution-signal", "pc-pollution-signal"]
+  ]
+}

@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.2
+Date: 2024-09-25
+  Changes:
+    - Renamed all mod prototypes in preparation for Factorio 2.0's stricter prototype name requirements.
+---------------------------------------------------------------------------------------------------
 Version: 1.0.1
 Date: 2024-03-25
   Changes:

@@ -11,7 +11,7 @@
 local constants = {};
 
 -- Mod constants
-constants.mod_prefix = "pc:";
+constants.mod_prefix = "pc-";
 constants.mod_name = "PollutionCombinator-JamieFork";
 constants.mod_path = "__" .. constants.mod_name .. "__/";
 
