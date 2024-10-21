@@ -8,7 +8,7 @@
 -- ================================================================
 
 -- Constants for the mod
-local pc_constants = require("constants");
+local mod_constants = require("scripts.constants");
 
 -- ================================================================
 -- Declarations
@@ -18,7 +18,7 @@ data:extend({
     -- Runtime global settings
     {
         type = "int-setting",
-        name = pc_constants.settings.update_rate,
+        name = mod_constants.setting_names.update_rate,
         setting_type = "runtime-global",
         default_value = 180,
         minimum_value = 1,
@@ -27,7 +27,7 @@ data:extend({
     },
     {
         type = "bool-setting",
-        name = pc_constants.settings.update_distribute,
+        name = mod_constants.setting_names.update_distribute,
         setting_type = "runtime-global",
         default_value = true,
         order = "s02",

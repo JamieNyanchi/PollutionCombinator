@@ -8,10 +8,10 @@
 -- ================================================================
 
 -- Constants for the mod
-local pc_constants = require("constants");
+local mod_constants = require("scripts.constants");
 
 -- Settings for the mod
-local pc_settings = require(pc_constants.mod_path .. "scripts/settings");
+local mod_settings = require("scripts.settings");
 
 
 -- ================================================================
@@ -20,27 +20,26 @@ local pc_settings = require(pc_constants.mod_path .. "scripts/settings");
 
 -- Local references for global mod data
 -- Set during on_init and on_load
----@type {pcs:{[number]:{control:LuaConstantCombinatorControlBehavior?, surface:LuaSurface, position:MapPosition, pollution:number}}, pcs_length:number, pcs_interval_length:number, pcs_current_index:number?, pcs_signal:table}
+---@type {pcs:{[number]:{control:LuaConstantCombinatorControlBehavior?, surface:LuaSurface, position:MapPosition, pollution:number}}, pcs_length:number, pcs_interval_length:number, pcs_current_index:number?, pcs_params:table}
 local pc_data = nil;
 
 -- Local references for global functions
 local ceil = math.ceil;
 local next = next;
 
--- Local copies of constants
-local pc_mod_name = pc_constants.mod_name;
-local pc_entity_name = pc_constants.entities.pollution_combinator_name;
-local pc_recipe_name = pc_constants.recipes.pollution_combinator_name;
-local pc_signal_name = pc_constants.signals.pollution_name;
+-- Local copies of mod constants
+local mod_name = mod_constants.mod_name;
+local prototype_name_pollution_combinator = mod_constants.prototype_names.pollution_combinator;
+local prototype_name_pollution_signal = mod_constants.prototype_names.pollution_signal;
 
--- Local copies of setting names
+-- Local copies of mod setting names
 -- Only localize the names and use them to get the actual setting value later
-local settings_update_rate_name = pc_constants.settings.update_rate;
-local settings_update_distribute_name = pc_constants.settings.update_distribute;
+local setting_name_update_rate = mod_constants.setting_names.update_rate;
+local setting_name_update_distribute = mod_constants.setting_names.update_distribute;
 
 -- Return data
 ---@type event_handler
-local pc_pollution_combinator = {};
+local pollution_combinator = {};
 
 
 -- ================================================================
@@ -48,37 +47,58 @@ local pc_pollution_combinator = {};
 -- ================================================================
 
 -- ----------------------------------------------------------------
--- register_pc_pollution_combinator
+-- register_pollution_combinator
 -- Adds new pollution combinators to the global list
 -- ----------------------------------------------------------------
 ---@param entity LuaEntity
-local function register_pc_pollution_combinator(entity)
+local function register_pollution_combinator(entity)
     -- Verify the entity is valid and is a pollution combinator
     -- Note: entity.valid should already have been checked by the calling function, so skip checking here to save the API call time
-    if (not (pc_data and entity and entity.name == pc_entity_name)) then
+    if (not (pc_data and entity and entity.name == prototype_name_pollution_combinator)) then
         return;
     end
+
+    -- Get the control behavior for the combinator
+    ---@class LuaConstantCombinatorControlBehavior
+    local control = entity.get_or_create_control_behavior();
+    if (not (control and control.valid)) then
+        return;
+    end
+
+    -- Set the combinator as inoperable
+    entity.operable = false;
 
     -- Only increment the length if a new combinator is being added
     if (pc_data.pcs[entity.unit_number] == nil) then
         pc_data.pcs_length = pc_data.pcs_length + 1;
     end
 
-    -- Register or update the combinator
+    -- Get the position and pollution of the combinator
+    local surface = entity.surface;
+    local position = entity.position;
+    local pollution = surface.get_pollution(position);
+
+    -- Set the parameters of the combinator control
+    -- Also clears out any extra signals that may have been set (by fast replacing, etc)
+    local pcs_params = pc_data.pcs_params;
+    pcs_params[1].count = pollution;
+    control.parameters = pcs_params;
+
+    -- Register or update the combinator entry
     pc_data.pcs[entity.unit_number] = {
-        control = entity.get_or_create_control_behavior(),
-        surface = entity.surface,
-        position = entity.position,
-        pollution = 0,
+        control = control,
+        surface = surface,
+        position = position,
+        pollution = pollution,
     };
 end
 
 -- ----------------------------------------------------------------
--- unregister_pc_pollution_combinator_by_index
+-- unregister_pollution_combinator_by_index
 -- Removes pollution combinators from the global list by index
 -- ----------------------------------------------------------------
 ---@param index number
-local function unregister_pc_pollution_combinator_by_index(index)
+local function unregister_pollution_combinator_by_index(index)
     -- Verify the index is valid and a combinator exists at the index
     if (not (pc_data and index and pc_data.pcs[index])) then
         return;
@@ -87,25 +107,30 @@ local function unregister_pc_pollution_combinator_by_index(index)
     -- Decrement the length
     pc_data.pcs_length = pc_data.pcs_length - 1;
 
+    -- If the current interval index is the same as the index being removed, move to the next item in the list before removing
+    if (pc_data.pcs_current_index == index) then
+        pc_data.pcs_current_index, _ = next(pc_data.pcs, index)
+    end
+
     -- Remove the combinator
     pc_data.pcs[index] = nil;
 end
 
 -- ----------------------------------------------------------------
--- unregister_pc_pollution_combinator_by_entity
+-- unregister_pollution_combinator_by_entity
 -- Removes pollution combinators from the global list by entity
 -- ----------------------------------------------------------------
 ---@param entity LuaEntity
-local function unregister_pc_pollution_combinator_by_entity(entity)
+local function unregister_pollution_combinator_by_entity(entity)
     -- Verify the entity is valid and is a pollution combinator
     -- If not valid, but this entity is in the list, it'll be removed during the next traversal in on_tick()
     -- Note: entity.valid should already have been checked by the calling function, so skip checking here to save the API call time
-    if (not (pc_data and entity and entity.name == pc_entity_name)) then
+    if (not (pc_data and entity and entity.name == prototype_name_pollution_combinator)) then
         return;
     end
 
     -- Remove the combinator by index
-    unregister_pc_pollution_combinator_by_index(entity.unit_number);
+    unregister_pollution_combinator_by_index(entity.unit_number);
 end
 
 -- ----------------------------------------------------------------
@@ -124,12 +149,15 @@ local function initialize_global_data()
         pcs_current_index = nil,
 
         -- Table for setting the signal output for each combinator
-        pcs_signal = {
-            signal = {
-                type = "virtual",
-                name = pc_signal_name,
+        pcs_params = {
+            {
+                signal = {
+                    type = "virtual",
+                    name = prototype_name_pollution_signal,
+                },
+                count = 1,
+                index = 1,
             },
-            count = 1,
         },
     };
 
@@ -138,8 +166,8 @@ local function initialize_global_data()
 
     -- Register all the existing pollution combinators on all surfaces
     for _, surface in pairs(game.surfaces) do
-        for _, entity in pairs(surface.find_entities_filtered { name = pc_entity_name }) do
-            register_pc_pollution_combinator(entity);
+        for _, entity in pairs(surface.find_entities_filtered { name = prototype_name_pollution_combinator }) do
+            register_pollution_combinator(entity);
         end
     end
 end
@@ -153,7 +181,7 @@ local function enable_recipes()
     for _, force in pairs(game.forces) do
         local recipes = force.recipes;
         local technologies = force.technologies;
-        recipes[pc_recipe_name].enabled = technologies["circuit-network"].researched;
+        recipes[prototype_name_pollution_combinator].enabled = technologies["circuit-network"].researched;
     end
 end
 
@@ -167,10 +195,8 @@ end
 -- Runs when starting a new save game, or for mods that are new to an existing one
 -- ----------------------------------------------------------------
 local function on_init()
-    -- Initialize the global data
+    -- Initialize the global data and recipe enable state
     initialize_global_data();
-
-    -- Set recipe enable state
     enable_recipes();
 end
 
@@ -190,8 +216,9 @@ end
 -- ----------------------------------------------------------------
 ---@param event ConfigurationChangedData
 local function on_configuration_changed(event)
-    -- Reinitialize the pollution combinator data if this mod's configuration changed
-    if (event.mod_changes and event.mod_changes[pc_mod_name]) then
+    -- Check if this mod's configuration changed
+    if (event.mod_changes and event.mod_changes[mod_name]) then
+        -- Reinitialize the global data and recipe enable state
         initialize_global_data();
         enable_recipes();
     end
@@ -220,15 +247,15 @@ local function on_tick(event)
     local pcs_current_index = nil;
     local pcs_current_entry = nil;
     local pcs_interval_length = nil;
-    local pcs_signal = pc_data.pcs_signal;
+    local pcs_signal = pc_data.pcs_params[1];
 
     -- Get the current update rate from the settings
-    local settings_update_rate = pc_settings[settings_update_rate_name];
+    local settings_update_rate = mod_settings[setting_name_update_rate];
 
     -- If the current tick is a multiple of the update rate, reset the current array index and recalculate the interval amount
     if (event.tick % settings_update_rate == 0) then
         -- Get whether the update should be distributed over multiple ticks from the settings
-        local settings_update_distribute = pc_settings[settings_update_distribute_name];
+        local settings_update_distribute = mod_settings[setting_name_update_distribute];
 
         -- Calculate and save the new interval length
         pcs_interval_length = settings_update_distribute and ceil(pcs_length / settings_update_rate) or pcs_length;
@@ -269,11 +296,12 @@ local function on_tick(event)
             -- Verify the entity control is valid, and update the combinator if so
             local control = pcs_current_entry.control;
             if (control and control.valid) then
+                -- Use set_signal instead of parameters for better performance
                 control.set_signal(1, pcs_signal);
             else
                 -- If the entity control isn't valid, remove it from the list
                 -- This is safe to do while traversing with next()
-                unregister_pc_pollution_combinator_by_index(pcs_current_index);
+                unregister_pollution_combinator_by_index(pcs_current_index);
             end
         end
 
@@ -294,22 +322,21 @@ end
 local function on_entity_built(event)
     -- Verify the entity is valid and is a pollution combinator
     local entity = event.created_entity or event.entity or event.destination;
-    if (entity and entity.valid and entity.name == pc_entity_name) then
-        register_pc_pollution_combinator(entity);
-        entity.operable = false;
+    if (entity and entity.valid and entity.name == prototype_name_pollution_combinator) then
+        register_pollution_combinator(entity);
     end
 end
 
 -- ----------------------------------------------------------------
--- on_pre_entity_removed
+-- on_entity_removed
 -- Called whenever an entity was removed
 -- ----------------------------------------------------------------
 ---@param event EventData.on_player_mined_entity|EventData.on_robot_mined_entity|EventData.on_entity_died|EventData.script_raised_destroy
-local function on_pre_entity_removed(event)
+local function on_entity_removed(event)
     -- Verify the entity is valid and is a pollution combinator
     local entity = event.entity;
-    if (entity and entity.valid and entity.name == pc_entity_name) then
-        unregister_pc_pollution_combinator_by_entity(entity);
+    if (entity and entity.valid and entity.name == prototype_name_pollution_combinator) then
+        unregister_pollution_combinator_by_entity(entity);
     end
 end
 
@@ -321,8 +348,8 @@ end
 local function on_entity_moved(event)
     -- Verify the entity is valid and is a pollution combinator
     local entity = event.entity or event.moved_entity;
-    if (entity and entity.valid and entity.name == pc_entity_name) then
-        register_pc_pollution_combinator(entity);
+    if (entity and entity.valid and entity.name == prototype_name_pollution_combinator) then
+        register_pollution_combinator(entity);
     end
 end
 
@@ -333,8 +360,8 @@ end
 local function register_modded_events()
     -- Register moved event for PickerDollies
     if (remote.interfaces["PickerDollies"] and remote.interfaces["PickerDollies"]["dolly_moved_entity_id"]) then
-        pc_pollution_combinator.events = pc_pollution_combinator.events or {};
-        pc_pollution_combinator.events[remote.call("PickerDollies", "dolly_moved_entity_id")] = on_entity_moved;
+        pollution_combinator.events = pollution_combinator.events or {};
+        pollution_combinator.events[remote.call("PickerDollies", "dolly_moved_entity_id")] = on_entity_moved;
     end
 end
 
@@ -343,16 +370,16 @@ end
 -- ================================================================
 
 -- Load / Initialize events
-pc_pollution_combinator.on_init = on_init;
-pc_pollution_combinator.on_load = on_load;
-pc_pollution_combinator.on_configuration_changed = on_configuration_changed;
+pollution_combinator.on_init = on_init;
+pollution_combinator.on_load = on_load;
+pollution_combinator.on_configuration_changed = on_configuration_changed;
 
 -- Remote interface events
 -- Intended to add our own remote interface, but we use it to register remote interface events from other mods
-pc_pollution_combinator.add_remote_interface = register_modded_events;
+pollution_combinator.add_remote_interface = register_modded_events;
 
 -- Standard events
-pc_pollution_combinator.events = {
+pollution_combinator.events = {
     -- Tick events
     [defines.events.on_tick] = on_tick,
 };
@@ -362,7 +389,7 @@ pc_pollution_combinator.events = {
 -- If another file in this mod wants to register any of these events in the future, move it to the event handler without the filter
 
 -- Filter for the events
-local filters = { { filter = "name", name = pc_entity_name } };
+local filters = { { filter = "name", name = prototype_name_pollution_combinator } };
 
 -- Built events
 script.on_event(defines.events.on_built_entity, on_entity_built, filters);
@@ -372,13 +399,13 @@ script.on_event(defines.events.script_raised_built, on_entity_built, filters);
 script.on_event(defines.events.script_raised_revive, on_entity_built, filters);
 
 -- Destroyed events
-script.on_event(defines.events.on_player_mined_entity, on_pre_entity_removed, filters);
-script.on_event(defines.events.on_robot_mined_entity, on_pre_entity_removed, filters);
-script.on_event(defines.events.on_entity_died, on_pre_entity_removed, filters);
-script.on_event(defines.events.script_raised_destroy, on_pre_entity_removed, filters);
+script.on_event(defines.events.on_player_mined_entity, on_entity_removed, filters);
+script.on_event(defines.events.on_robot_mined_entity, on_entity_removed, filters);
+script.on_event(defines.events.on_entity_died, on_entity_removed, filters);
+script.on_event(defines.events.script_raised_destroy, on_entity_removed, filters);
 
 -- Moved events
 script.on_event(defines.events.script_raised_teleported, on_entity_moved, filters);
 
 -- Return
-return pc_pollution_combinator;
+return pollution_combinator;

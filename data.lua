@@ -7,8 +7,7 @@
 -- Requires
 -- ================================================================
 
--- Constants for the mod
-local pc_constants = require("constants");
+-- None
 
 
 -- ================================================================
@@ -16,16 +15,16 @@ local pc_constants = require("constants");
 -- ================================================================
 
 -- Entities
-require(pc_constants.mod_path .. "prototypes/entity");
+require("prototypes.entity");
 
 -- Items
-require(pc_constants.mod_path .. "prototypes/item");
+require("prototypes.item");
 
 -- Recipes
-require(pc_constants.mod_path .. "prototypes/recipe");
+require("prototypes.recipe");
 
 -- Signals
-require(pc_constants.mod_path .. "prototypes/signal");
+require("prototypes.signal");
 
 -- Technology
-require(pc_constants.mod_path .. "prototypes/technology");
+require("prototypes.technology");

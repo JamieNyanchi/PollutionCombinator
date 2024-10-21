@@ -8,7 +8,7 @@
 -- ================================================================
 
 -- Constants for the mod
-local pc_constants = require("constants");
+local mod_constants = require("scripts.constants");
 
 
 -- ================================================================
@@ -16,19 +16,28 @@ local pc_constants = require("constants");
 -- ================================================================
 
 -- Copy base constant combinator recipe
-local pc = table.deepcopy(data.raw["recipe"]["constant-combinator"]);
+local pollution_combinator = table.deepcopy(data.raw["recipe"]["constant-combinator"]);
 
 -- Adjust values for the pollution combinator
-pc.name = pc_constants.recipes.pollution_combinator_name;
-pc.result = pc_constants.items.pollution_combinator_name;
-pc.enabled = false;
+pollution_combinator.name = mod_constants.prototype_names.pollution_combinator;
+pollution_combinator.enabled = false;
 
-pc.ingredients = {
-    { "constant-combinator", 1 },
-    { "electronic-circuit",  1 },
+-- Ensure the result values are unset
+pollution_combinator.result = nil;
+pollution_combinator.result_count = nil;
+
+-- Replace ingredients
+pollution_combinator.ingredients = {
+    { type = "item", name = "constant-combinator", amount = 1 },
+    { type = "item", name = "electronic-circuit",  amount = 1 },
+};
+
+-- Replace results
+pollution_combinator.results = {
+    { type = "item", name = mod_constants.prototype_names.pollution_combinator, amount = 1 },
 };
 
 -- Add the pollution combinator recipe
 data:extend({
-    pc,
+    pollution_combinator,
 });

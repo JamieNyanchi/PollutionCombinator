@@ -8,7 +8,7 @@
 -- ================================================================
 
 -- Constants for the mod
-local pc_constants = require("constants");
+local mod_constants = require("scripts.constants");
 
 
 -- ================================================================
@@ -16,21 +16,32 @@ local pc_constants = require("constants");
 -- ================================================================
 
 -- Copy base constant combinator item
-local pc = table.deepcopy(data.raw["item"]["constant-combinator"]);
+local pollution_combinator = table.deepcopy(data.raw["item"]["constant-combinator"]);
 
 -- Adjust values for the pollution combinator
-pc.name = pc_constants.items.pollution_combinator_name;
-pc.place_result = pc_constants.entities.pollution_combinator_name;
-pc.stack_size = 50;
+pollution_combinator.name = mod_constants.prototype_names.pollution_combinator;
+pollution_combinator.place_result = mod_constants.prototype_names.pollution_combinator;
+pollution_combinator.stack_size = 50;
 
-pc.icon = pc_constants.mod_path .. "graphics/icons/pollution-combinator.png";
-pc.icon_size = 64;
-pc.icon_mipmaps = 4;
+-- Ensure icon values are unset
+pollution_combinator.icon = nil;
+pollution_combinator.icon_size = nil;
+pollution_combinator.icon_mipmaps = nil;
 
-pc.subgroup = "circuit-network";
-pc.order = "c[combinators]-d[pollution-combinator]";
+-- Set the subgroup and order
+pollution_combinator.subgroup = "circuit-network";
+pollution_combinator.order = "c[combinators]-d[pollution-combinator]";
+
+-- Replace icon
+pollution_combinator.icons = {
+    {
+        icon = mod_constants.mod_path .. "graphics/icons/pollution-combinator.png",
+        icon_size = 64,
+        icon_mipmaps = 4,
+    },
+};
 
 -- Add the pollution combinator icon
 data:extend({
-    pc,
+    pollution_combinator,
 });

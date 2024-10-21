@@ -7,11 +7,8 @@
 -- Requires
 -- ================================================================
 
--- Constants for the mod
-local pc_constants = require("constants");
-
 -- Factorio Lua's built in event handler
-local handler = require("__core__/lualib/event_handler");
+local handler = require("__core__.lualib.event_handler");
 
 
 -- ================================================================
@@ -20,6 +17,6 @@ local handler = require("__core__/lualib/event_handler");
 
 -- Register events
 handler.add_libraries({
-    require(pc_constants.mod_path .. "scripts/settings"),
-    require(pc_constants.mod_path .. "scripts/pollution-combinator"),
+    require("scripts.settings"),
+    require("scripts.pollution-combinator"),
 });

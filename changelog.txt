@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.3
+Date: 2024-10-21
+  Changes:
+    - Refactored prototypes and code in preparation for Factorio 2.0.
+    - Newly built combinators now display the pollution count immediately instead of waiting for the next update cycle.
+---------------------------------------------------------------------------------------------------
 Version: 1.0.2
 Date: 2024-09-25
   Changes:
@@ -14,4 +20,4 @@ Date: 2024-03-25
 Version: 1.0.0
 Date: 2024-03-23
   Features:
-    - Initial release
+    - Initial release.

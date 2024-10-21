@@ -8,20 +8,20 @@
 -- ================================================================
 
 -- Constants for the mod
-local pc_constants = require("constants");
+local mod_constants = require("scripts.constants");
 
 
 -- ================================================================
 -- Members
 -- ================================================================
 
--- Return data
-local pc_settings = {};
+-- Create mod setting table
+local mod_settings = {};
 
--- Populate return data with all mod settings
-for _, setting in pairs(pc_constants.settings) do
+-- Populate settings table with all mod settings
+for _, setting in pairs(mod_constants.setting_names) do
     if (settings.global[setting]) then
-        pc_settings[setting] = settings.global[setting].value;
+        mod_settings[setting] = settings.global[setting].value;
     end
 end
 
@@ -41,8 +41,8 @@ end
 -- ----------------------------------------------------------------
 ---@param event EventData.on_runtime_mod_setting_changed
 local function on_runtime_mod_setting_changed(event)
-    if (pc_settings[event.setting] ~= nil) then
-        pc_settings[event.setting] = settings.global[event.setting].value;
+    if (mod_settings[event.setting] ~= nil) then
+        mod_settings[event.setting] = settings.global[event.setting].value;
     end
 end
 
@@ -52,9 +52,10 @@ end
 -- ================================================================
 
 -- Standard events
-pc_settings.events = {
+mod_settings.events = {
     -- Settings events
     [defines.events.on_runtime_mod_setting_changed] = on_runtime_mod_setting_changed,
 };
 
-return pc_settings;
+-- Return mod setting table
+return mod_settings;
