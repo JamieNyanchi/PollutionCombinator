@@ -22,10 +22,6 @@ local pollution_combinator = table.deepcopy(data.raw["recipe"]["constant-combina
 pollution_combinator.name = mod_constants.prototype_names.pollution_combinator;
 pollution_combinator.enabled = false;
 
--- Ensure the result values are unset
-pollution_combinator.result = nil;
-pollution_combinator.result_count = nil;
-
 -- Replace ingredients
 pollution_combinator.ingredients = {
     { type = "item", name = "constant-combinator", amount = 1 },

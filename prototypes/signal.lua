@@ -31,7 +31,6 @@ pollution_signal.icons = {
     {
         icon = mod_constants.mod_path .. "graphics/icons/signal/pollution-signal.png",
         icon_size = 64,
-        icon_mipmaps = 1,
         tint = mod_constants.tints.pollution,
     },
 };

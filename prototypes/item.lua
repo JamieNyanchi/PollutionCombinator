@@ -26,18 +26,16 @@ pollution_combinator.stack_size = 50;
 -- Ensure icon values are unset
 pollution_combinator.icon = nil;
 pollution_combinator.icon_size = nil;
-pollution_combinator.icon_mipmaps = nil;
 
 -- Set the subgroup and order
 pollution_combinator.subgroup = "circuit-network";
-pollution_combinator.order = "c[combinators]-d[pollution-combinator]";
+pollution_combinator.order = "c[combinators]-e[pollution-combinator]";
 
 -- Replace icon
 pollution_combinator.icons = {
     {
         icon = mod_constants.mod_path .. "graphics/icons/pollution-combinator.png",
         icon_size = 64,
-        icon_mipmaps = 4,
     },
 };
 

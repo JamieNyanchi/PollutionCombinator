@@ -1,14 +1,14 @@
 {
     "name": "PollutionCombinator-JamieFork",
-    "version": "1.0.3",
+    "version": "1.1.0",
     "title": "Pollution Combinator (Jamie's Fork)",
     "author": "starruler, JamieNyanchi",
     "description": "Fork of starruler's Pollution Combinator mod.\n\nAdds a combinator that outputs the amount of pollution in the chunk where it is placed as a circuit network signal.",
     "contact": "https://github.com/JamieNyanchi/PollutionCombinator",
     "homepage": "https://github.com/JamieNyanchi/PollutionCombinator",
-    "factorio_version": "1.1",
+    "factorio_version": "2.0",
     "dependencies": [
-        "base >= 1.1.77",
+        "base >= 2.0.7",
         "(?) PickerDollies",
         "! pollution-combinator"
     ],
